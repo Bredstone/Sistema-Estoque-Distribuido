@@ -54,18 +54,22 @@ public class Inventory extends UnicastRemoteObject implements InventoryInterface
 
   @Override
   public List<InventoryEntryInterface> searchProductsByName(String productName) throws RemoteException {
-    // return inventory.stream().filter(inventoryEntry -> 
-    //   inventoryEntry.getProduct().getProductName().toUpperCase().contains(productName.toUpperCase()))
-    //     .collect(Collectors.toList());
-    return null;
+    List<InventoryEntryInterface> returnList = new ArrayList<InventoryEntryInterface>();
+    for (InventoryEntryInterface entry : inventory)
+      if (entry.getProduct().getProductName().toUpperCase().contains(productName.toUpperCase()))
+        returnList.add(entry);
+    
+    return (returnList.size() == 0) ? null : returnList;
   }
 
   @Override
   public List<InventoryEntryInterface> searchProductsByDescription(String productDescription) throws RemoteException {
-    // return inventory.stream().filter(inventoryEntry -> 
-    //   inventoryEntry.getProduct().getProductDescription().toUpperCase().contains(productDescription.toUpperCase()))
-    //     .collect(Collectors.toList());
-    return null;
+    List<InventoryEntryInterface> returnList = new ArrayList<InventoryEntryInterface>();
+    for (InventoryEntryInterface entry : inventory)
+      if (entry.getProduct().getProductDescription().toUpperCase().contains(productDescription.toUpperCase()))
+        returnList.add(entry);
+    
+    return (returnList.size() == 0) ? null : returnList;
   }
 
   @Override
