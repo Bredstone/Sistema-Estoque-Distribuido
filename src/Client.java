@@ -2,6 +2,7 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.NotBoundException;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 import inventory.InventoryEntryInterface;
@@ -30,57 +31,117 @@ public class Client {
     System.out.println("\tCódigo do produto: "    + entry.getProduct().getProductID());
     System.out.println("\tNome do produto: "      + entry.getProduct().getProductName());
     System.out.println("\tDescrição do produto: " + entry.getProduct().getProductDescription());
-    System.out.println("\tPreço do produto: "     + entry.getProduct().getProductPrice());
+    System.out.println("\tPreço do produto: R$"   + String.format("%.2f", entry.getProduct().getProductPrice()));
     System.out.println("\tQuantidade: "           + entry.getQtd());
     System.out.println("\tAdicionado: "           + entry.getAddedOn());
     System.out.println("\tÚltima modificação: "   + entry.getLastModified());
     System.out.println("");
   }
 
+  private void addNewProductForm() throws Exception {
+    System.out.print("Código do produto: ");
+    int productID = Integer.parseInt(in.nextLine());
+    
+    System.out.print("Nome do produto: ");
+    String productName = in.nextLine();
+    
+    System.out.print("Descrição do produto: ");
+    String productDescription = in.nextLine();
+
+    System.out.print("Preço do produto: ");
+    float productPrice = Float.parseFloat(in.nextLine());
+
+    System.out.print("Quantidade no estoque: ");
+    int qtd = Integer.parseInt(in.nextLine());
+
+    inventory.addProduct(new Product(productID, productName, productDescription, productPrice), qtd);
+
+    System.out.println("Item adicionado com sucesso!");
+    this.printProductInfo(inventory.searchProductByID(productID));
+  }
+
+  private void addProductForm() throws Exception {
+    System.out.print("Código do produto: ");
+    int productID = Integer.parseInt(in.nextLine());
+
+    System.out.print("Quantidade no estoque: ");
+    int qtd = Integer.parseInt(in.nextLine());
+
+    inventory.addProduct(inventory.searchProductByID(productID).getProduct(), qtd);
+
+    System.out.println("Item adicionado com sucesso!");
+    this.printProductInfo(inventory.searchProductByID(productID));
+  }
+
+  private void getProductByIdForm() throws RemoteException {
+    System.out.print("Código do produto: ");
+    InventoryEntryInterface entry = inventory.searchProductByID(Integer.parseInt(in.nextLine()));
+
+    if (entry == null)
+      System.out.println("Nenhum resultado encontrado!\n");
+    else
+      this.printProductInfo(entry);
+  }
+
+  private void getProductByNameForm() throws RemoteException {
+    System.out.print("Nome do produto: ");
+    List<InventoryEntryInterface> entryList = inventory.searchProductsByName(in.nextLine());
+
+    if (entryList == null)
+      System.out.println("Nenhum resultado encontrado!\n");
+    else
+      for (InventoryEntryInterface entry : entryList) 
+        this.printProductInfo(entry);
+  }
+
+  private void getProductByDescriptionForm() throws RemoteException {
+    System.out.print("Descrição do produto: ");
+    List<InventoryEntryInterface> entryList = inventory.searchProductsByDescription(in.nextLine());
+
+    if (entryList == null)
+      System.out.println("Nenhum resultado encontrado!\n");
+    else
+      for (InventoryEntryInterface entry : entryList) 
+        this.printProductInfo(entry);
+  }
+
   public void execute() {
-    String op, productName, productDescription;
-    int productID, qtd;
-    float productPrice;
+    String op;
 
     try {
       System.out.println("Entre com um dos comandos a seguir:");
-      System.out.println("\t\tadd_new <cód> <nome> <descrição> <preço> <qtd>");
-      System.out.println("\t\tadd <cód> <qtd>");
-      System.out.println("\t\tget_id <cód>");
+      System.out.println("\t\tadd_new");
+      System.out.println("\t\tadd");
+      System.out.println("\t\tget_by_id");
+      System.out.println("\t\tget_by_name");
+      System.out.println("\t\tget_by_desc");
       System.out.println("\t\tsair");
       System.out.println("");
 
       menu_while:
       while (true) {
-        op = in.next();
+        op = in.nextLine();
         
         switch (op.toLowerCase()) {
           case "add_new":
-            productID = in.nextInt();
-            productName = in.next();
-            productDescription = in.next();
-            productPrice = in.nextFloat();
-            qtd = in.nextInt();
-            inventory.addProduct(new Product(productID, productName, productDescription, productPrice), qtd);
-
-            System.out.println("Item adicionado com sucesso!");
-            this.printProductInfo(inventory.searchProductByID(productID));
+            this.addNewProductForm();
             break;
 
           case "add":
-            productID = in.nextInt();
-            qtd = in.nextInt();
-            inventory.addProduct(inventory.searchProductByID(productID).getProduct(), qtd);
-
-            System.out.println("Item adicionado com sucesso!");
-            this.printProductInfo(inventory.searchProductByID(productID));
+            this.addProductForm();
             break;
           
-          case "get_id":
-            productID = in.nextInt();
-
-            this.printProductInfo(inventory.searchProductByID(productID));
+          case "get_by_id":
+            this.getProductByIdForm();
             break;
+          
+          case "get_by_name":
+            this.getProductByNameForm();
+            break;
+
+          case "get_by_desc":
+            this.getProductByDescriptionForm();
+            break; 
 
           case "sair":
             System.out.println("Saindo do programa...");
