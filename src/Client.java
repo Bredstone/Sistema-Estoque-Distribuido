@@ -34,14 +34,10 @@ public class Client {
     System.out.println("\tPreço do produto: R$"   + String.format("%.2f", entry.getProduct().getProductPrice()));
     System.out.println("\tQuantidade: "           + entry.getQtd());
     System.out.println("\tAdicionado: "           + entry.getAddedOn());
-    System.out.println("\tÚltima modificação: "   + entry.getLastModified());
-    System.out.println("");
+    System.out.println("\tÚltima modificação: "   + entry.getLastModified() + "\n");
   }
 
-  private void addNewProductForm() throws Exception {
-    System.out.print("Código do produto: ");
-    int productID = Integer.parseInt(in.nextLine());
-    
+  private void addNewProductForm() throws Exception {    
     System.out.print("Nome do produto: ");
     String productName = in.nextLine();
     
@@ -54,23 +50,25 @@ public class Client {
     System.out.print("Quantidade no estoque: ");
     int qtd = Integer.parseInt(in.nextLine());
 
-    inventory.addProduct(new Product(productID, productName, productDescription, productPrice), qtd);
+    InventoryEntryInterface entry = inventory.addNewProduct(
+      new Product(0, productName, productDescription, productPrice), 
+      qtd);
 
     System.out.println("Item adicionado com sucesso!");
-    this.printProductInfo(inventory.searchProductByID(productID));
+    System.out.println("Código do produto: " + entry.getProduct().getProductID() + "\n");
   }
 
-  private void addProductForm() throws Exception {
+  private void addProductQtdForm() throws Exception {
     System.out.print("Código do produto: ");
     int productID = Integer.parseInt(in.nextLine());
 
-    System.out.print("Quantidade no estoque: ");
+    System.out.print("Quantidade adicionada: ");
     int qtd = Integer.parseInt(in.nextLine());
 
-    inventory.addProduct(inventory.searchProductByID(productID).getProduct(), qtd);
+    InventoryEntryInterface entry = inventory.addProductQtd(productID, qtd);
 
-    System.out.println("Item adicionado com sucesso!");
-    this.printProductInfo(inventory.searchProductByID(productID));
+    System.out.println("Item atualizado com sucesso!");
+    System.out.println("Quantidade atual: " + entry.getQtd() + "\n");
   }
 
   private void getProductByIdForm() throws RemoteException {
@@ -108,59 +106,91 @@ public class Client {
   public void execute() {
     String op;
 
-    try {
-      System.out.println("Entre com um dos comandos a seguir:");
-      System.out.println("\t\tadd_new");
-      System.out.println("\t\tadd");
-      System.out.println("\t\tget_by_id");
-      System.out.println("\t\tget_by_name");
-      System.out.println("\t\tget_by_desc");
-      System.out.println("\t\tsair");
-      System.out.println("");
+    System.out.println("Entre com um dos comandos a seguir:");
+    System.out.println("\t1 - add_new\t\tAdicionar novo produto");
+    System.out.println("\t2 - add_qtd\t\tAdicionar quantidade ao estoque");
+    System.out.println("\t3 - rm_qtd\t\tRemover quantidade do estoque");
+    System.out.println("\t4 - purge_prod\t\tRemover produto do estoque");
+    System.out.println("\t5 - search_id\t\tBuscar pelo código");
+    System.out.println("\t6 - search_name\t\tBuscar pelo nome");
+    System.out.println("\t7 - search_desc\t\tBuscar pela descrição");
+    System.out.println("\t8 - edit_prod\t\tEditar produto");
+    System.out.println("\t9 - sair\n");
 
-      menu_while:
-      while (true) {
+    menu_while:
+    while (true) {
+      try {
         op = in.nextLine();
         
         switch (op.toLowerCase()) {
+          case "1":
           case "add_new":
+          case "1 - add_new":
             this.addNewProductForm();
             break;
 
-          case "add":
-            this.addProductForm();
+          case "2":
+          case "add_qtd":
+          case "2 - add_qtd":
+            this.addProductQtdForm();
+            break;
+
+          case "3":
+          case "rm_qtd":
+          case "3 - rm_qtd":
+            // TODO
+            break;
+
+          case "4":
+          case "purge_prod":
+          case "4 - purge_prod":
+            //TODO
             break;
           
-          case "get_by_id":
+          case "5":
+          case "search_id":
+          case "5 - search_id":
             this.getProductByIdForm();
             break;
           
-          case "get_by_name":
+          case "6":
+          case "search_name":
+          case "6 - search_name":
             this.getProductByNameForm();
             break;
 
-          case "get_by_desc":
+          case "7":
+          case "search_desc":
+          case "7 - search_desc":
             this.getProductByDescriptionForm();
             break; 
 
+          case "8":
+          case "edit_prod":
+          case "8 - edit_prod":
+            //TODO
+            break; 
+
+          case "9":
           case "sair":
+          case "9 - sair":
             System.out.println("Saindo do programa...");
             break menu_while;
 
           default:
-            System.out.println("Opção Inválida!");
+            System.out.println("Opção Inválida!\n");
             break;
         }
+      } catch (IllegalArgumentException e) {
+        System.out.println(e.toString() + "\n");
+      } catch (InputMismatchException e) {
+        System.out.println("Valor inválido!\n");
+      } catch (Exception e) {		
+        System.out.println("Exception: " + e.toString()); 
       }
-		
-      in.close();
-    } catch (IndexOutOfBoundsException e) {
-      System.out.println("Índice fora dos limites!");
-    } catch (InputMismatchException e) {
-      System.out.println("Valor inválido!");
-    } catch (Exception e) {		
-      System.out.println("Exception: " + e.toString()); 
     }
+  
+    in.close();
   }
 
   public static void main(String[] args) {

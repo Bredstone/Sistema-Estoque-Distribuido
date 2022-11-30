@@ -7,40 +7,54 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Inventory extends UnicastRemoteObject implements InventoryInterface {
-  List<InventoryEntryInterface> inventory;
+  private List<InventoryEntryInterface> inventory;
+  private int lastID;
 
   public Inventory() throws RemoteException {
     inventory = new ArrayList<InventoryEntryInterface>();
+    lastID = 0;
   }
 
   @Override
-  public void addProduct(ProductInterface product, int qtd) throws RemoteException, Exception {
-    InventoryEntryInterface entry = this.searchProductByID(product.getProductID());
-
-    if (entry == null) {
-      entry = new InventoryEntry(product, qtd, new Timestamp(System.currentTimeMillis()), new Timestamp(System.currentTimeMillis()));
-      inventory.add(entry);
-    } else if (entry.getProduct().equals(product)) {
-      int index = inventory.indexOf(entry);
-      entry.setQtd(entry.getQtd() + qtd);
-      entry.setLastModified(new Timestamp(System.currentTimeMillis()));
-
-      inventory.set(index, entry);
-    } else {
-      throw new Exception("Código de produto já cadastrado!");
-    }
-  }
-
-  @Override
-  public void removeProduct(ProductInterface product, int qtd) throws RemoteException {
-    // TODO Auto-generated method stub
+  public InventoryEntryInterface addNewProduct(ProductInterface product, int qtd) throws RemoteException {
+    product.setProductID(++lastID);
+    inventory.add(
+      new InventoryEntry(product, qtd, 
+      new Timestamp(System.currentTimeMillis()), 
+      new Timestamp(System.currentTimeMillis())));
     
+    return this.searchProductByID(lastID);
   }
 
   @Override
-  public void purgeProduct(ProductInterface product) throws RemoteException {
-    // TODO Auto-generated method stub
+  public InventoryEntryInterface addProductQtd(int productID, int qtd) throws RemoteException, IllegalArgumentException {
+    InventoryEntryInterface entry = this.searchProductByID(productID);
     
+    if (entry == null)
+      throw new IllegalArgumentException("Produto não encontrado!");
+
+    int index = inventory.indexOf(entry);
+    
+    entry.setQtd(entry.getQtd() + qtd);
+    entry.setLastModified(new Timestamp(System.currentTimeMillis()));
+
+    inventory.set(index, entry);
+    return entry;
+  }
+
+  @Override
+  public InventoryEntryInterface removeProductQtd(int productID, int qtd) throws RemoteException, IllegalArgumentException {
+    return this.addProductQtd(productID, -qtd);
+  }
+
+  @Override
+  public void purgeProduct(int productID) throws RemoteException, IllegalArgumentException {
+    InventoryEntryInterface entry = this.searchProductByID(productID);
+
+    if (entry == null)
+      throw new IllegalArgumentException("Produto não encontrado!");
+    
+    inventory.remove(entry);
   }
 
   @Override
@@ -73,20 +87,20 @@ public class Inventory extends UnicastRemoteObject implements InventoryInterface
   }
 
   @Override
-  public void editProduct(int productID, ProductInterface product) throws RemoteException, Exception {
+  public InventoryEntryInterface editProduct(int productID, ProductInterface product) throws RemoteException, IllegalArgumentException {
     if (product.getProductID() != productID)
-      throw new Exception("O código do produto não pode ser alterado!");
+      throw new IllegalArgumentException("O código do produto não pode ser alterado!");
     
     InventoryEntryInterface entry = this.searchProductByID(productID);
 
-    if (entry == null) {
-      throw new Exception("Código de produto não encontrado!");
-    } else {
-      int index = inventory.indexOf(entry);
-      entry.setProduct(product);
-      entry.setLastModified(new Timestamp(System.currentTimeMillis()));
+    if (entry == null)
+      throw new IllegalArgumentException("Produto não encontrado!");
 
-      inventory.set(index, entry);
-    }
+    int index = inventory.indexOf(entry);
+    entry.setProduct(product);
+    entry.setLastModified(new Timestamp(System.currentTimeMillis()));
+
+    inventory.set(index, entry);
+    return entry;
   }
 }

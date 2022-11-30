@@ -6,27 +6,38 @@ import java.util.List;
 
 public interface InventoryInterface extends Remote {
   /** 
-   * Adiciona um produto ao estoque.
+   * Adiciona um novo produto ao estoque.
    * 
    * @param product - Produto a ser adicionado
    * @param qtd - Quantidade a ser adicionada
+   * @return Entrada do estoque recém cadastrada
    */
-  public void addProduct(ProductInterface product, int qtd) throws RemoteException, Exception;
+  public InventoryEntryInterface addNewProduct(ProductInterface product, int qtd) throws RemoteException;
 
   /** 
-   * Remove um produto do estoque.
+   * Acrescenta a quantidade de um produto no estoque.
    * 
-   * @param product - Produto a ser removido
-   * @param qtd - Quantidade a ser removida
+   * @param productID - Código de identificação do produto
+   * @param qtd - Quantidade a ser adicionada
+   * @return Entrada do estoque recém modificada
    */
-  public void removeProduct(ProductInterface product, int qtd) throws RemoteException;
+  public InventoryEntryInterface addProductQtd(int productID, int qtd) throws RemoteException, IllegalArgumentException;
+
+  /** 
+   * Remove a quantidade de um produto do estoque.
+   * 
+   * @param productID - Código de identificação do produto
+   * @param qtd - Quantidade a ser removida
+   * @return Entrada do estoque recém modificada
+   */
+  public InventoryEntryInterface removeProductQtd(int productID, int qtd) throws RemoteException, IllegalArgumentException;
 
   /** 
    * Remove todas as ocorrências de um produto do estoque, assim como seus dados.
    * 
-   * @param product - Produto a ser removido
+   * @param productID - Código de identificação do produto
    */
-  public void purgeProduct(ProductInterface product) throws RemoteException;
+  public void purgeProduct(int productID) throws RemoteException, IllegalArgumentException;
 
     /**
    * Busca um produto pelo código identificador.
@@ -57,6 +68,7 @@ public interface InventoryInterface extends Remote {
    * 
    * @param productID - Código de identificação do produto
    * @param product - Produto com as informações alteradas
+   * @return Entrada do estoque recém modificada
    */
-  public void editProduct(int productID, ProductInterface product) throws RemoteException, Exception;
+  public InventoryEntryInterface editProduct(int productID, ProductInterface product) throws RemoteException, IllegalArgumentException;
 }
