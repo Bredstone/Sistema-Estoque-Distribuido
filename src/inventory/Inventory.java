@@ -34,7 +34,10 @@ public class Inventory extends UnicastRemoteObject implements InventoryInterface
       throw new IllegalArgumentException("Produto não encontrado!");
 
     int index = inventory.indexOf(entry);
-    
+
+    if (entry.getQtd() + qtd < 0)
+      throw new IllegalArgumentException("Quantidade inválida!");
+
     entry.setQtd(entry.getQtd() + qtd);
     entry.setLastModified(new Timestamp(System.currentTimeMillis()));
 

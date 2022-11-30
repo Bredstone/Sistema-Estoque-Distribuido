@@ -44,8 +44,8 @@ public class Client {
     System.out.print("Descrição do produto: ");
     String productDescription = in.nextLine();
 
-    System.out.print("Preço do produto: ");
-    float productPrice = Float.parseFloat(in.nextLine());
+    System.out.print("Preço do produto: R$");
+    float productPrice = Float.parseFloat(in.nextLine().replace(",", "."));
 
     System.out.print("Quantidade no estoque: ");
     int qtd = Integer.parseInt(in.nextLine());
@@ -71,36 +71,92 @@ public class Client {
     System.out.println("Quantidade atual: " + entry.getQtd() + "\n");
   }
 
-  private void getProductByIdForm() throws RemoteException {
+  private void rmProductQtdForm() throws Exception {
+    System.out.print("Código do produto: ");
+    int productID = Integer.parseInt(in.nextLine());
+
+    System.out.print("Quantidade removida: ");
+    int qtd = Integer.parseInt(in.nextLine());
+
+    InventoryEntryInterface entry = inventory.removeProductQtd(productID, qtd);
+
+    System.out.println("Item atualizado com sucesso!");
+    System.out.println("Quantidade atual: " + entry.getQtd() + "\n");
+  }
+
+  private void purgeProductForm() throws Exception {
+    System.out.print("Código do produto: ");
+    int productID = Integer.parseInt(in.nextLine());
+
+    System.out.print("Tem certeza que deseja remover este produto e todas as suas referências? (S/N): ");
+
+    if (!in.nextLine().equalsIgnoreCase("S"))
+      throw new IllegalArgumentException("Operação cancelada...");
+
+    inventory.purgeProduct(productID);
+    System.out.println("Item removido com sucesso!\n");
+  }
+
+  private void getProductByIdForm() throws Exception {
     System.out.print("Código do produto: ");
     InventoryEntryInterface entry = inventory.searchProductByID(Integer.parseInt(in.nextLine()));
 
     if (entry == null)
-      System.out.println("Nenhum resultado encontrado!\n");
-    else
-      this.printProductInfo(entry);
+      throw new IllegalArgumentException("Nenhum resultado encontrado!");
+
+    this.printProductInfo(entry);
   }
 
-  private void getProductByNameForm() throws RemoteException {
+  private void getProductByNameForm() throws Exception {
     System.out.print("Nome do produto: ");
     List<InventoryEntryInterface> entryList = inventory.searchProductsByName(in.nextLine());
 
     if (entryList == null)
-      System.out.println("Nenhum resultado encontrado!\n");
-    else
-      for (InventoryEntryInterface entry : entryList) 
-        this.printProductInfo(entry);
+      throw new IllegalArgumentException("Nenhum resultado encontrado!");
+
+    for (InventoryEntryInterface entry : entryList) 
+      this.printProductInfo(entry);
   }
 
-  private void getProductByDescriptionForm() throws RemoteException {
+  private void getProductByDescriptionForm() throws Exception {
     System.out.print("Descrição do produto: ");
     List<InventoryEntryInterface> entryList = inventory.searchProductsByDescription(in.nextLine());
 
     if (entryList == null)
-      System.out.println("Nenhum resultado encontrado!\n");
-    else
-      for (InventoryEntryInterface entry : entryList) 
-        this.printProductInfo(entry);
+      throw new IllegalArgumentException("Nenhum resultado encontrado!");
+
+    for (InventoryEntryInterface entry : entryList) 
+      this.printProductInfo(entry);
+  }
+
+  private void editProductForm() throws Exception {    
+    System.out.print("Código do produto: ");
+    int productID = Integer.parseInt(in.nextLine());
+
+    InventoryEntryInterface entry = inventory.searchProductByID(productID);
+
+    if (entry == null)
+      throw new IllegalArgumentException("Produto não encontrado!");
+
+    System.out.println("Nome do produto: " + entry.getProduct().getProductName());
+    System.out.print("Nome do produto (deixe em branco para manter): ");
+    String productName = in.nextLine();
+    
+    System.out.println("Descrição do produto: " + entry.getProduct().getProductDescription());
+    System.out.print("Descrição do produto (deixe em branco para manter): ");
+    String productDescription = in.nextLine();
+
+    System.out.print("Preço do produto: R$" + String.format("%.2f", entry.getProduct().getProductPrice()));
+    System.out.print("Preço do produto: R$");
+    float productPrice = Float.parseFloat(in.nextLine().replace(",", "."));
+
+    inventory.editProduct(productID, 
+      new Product(productID, 
+        productName.isEmpty() ? entry.getProduct().getProductName() : productName, 
+        productDescription.isEmpty() ? entry.getProduct().getProductDescription() : productDescription, 
+        productPrice));
+
+    System.out.println("Item modificado com sucesso!\n");
   }
 
   public void execute() {
@@ -120,6 +176,7 @@ public class Client {
     menu_while:
     while (true) {
       try {
+        System.out.print("Opção: ");
         op = in.nextLine();
         
         switch (op.toLowerCase()) {
@@ -138,13 +195,13 @@ public class Client {
           case "3":
           case "rm_qtd":
           case "3 - rm_qtd":
-            // TODO
+            this.rmProductQtdForm();
             break;
 
           case "4":
           case "purge_prod":
           case "4 - purge_prod":
-            //TODO
+            this.purgeProductForm();
             break;
           
           case "5":
@@ -168,7 +225,7 @@ public class Client {
           case "8":
           case "edit_prod":
           case "8 - edit_prod":
-            //TODO
+            this.editProductForm();
             break; 
 
           case "9":
@@ -181,8 +238,10 @@ public class Client {
             System.out.println("Opção Inválida!\n");
             break;
         }
+      } catch (NumberFormatException e) {
+        System.out.println("Entrada inválida: " + e.getMessage() + "\n");
       } catch (IllegalArgumentException e) {
-        System.out.println(e.toString() + "\n");
+        System.out.println(e.getMessage() + "\n");
       } catch (InputMismatchException e) {
         System.out.println("Valor inválido!\n");
       } catch (Exception e) {		
@@ -191,6 +250,7 @@ public class Client {
     }
   
     in.close();
+    System.exit(0);
   }
 
   public static void main(String[] args) {
