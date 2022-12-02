@@ -1,6 +1,10 @@
+import javax.json.*;
+
+import java.io.InputStream;
+import java.net.URL;
 import java.rmi.Naming;
-import java.rmi.RemoteException;
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -47,11 +51,20 @@ public class Client {
     System.out.print("Preço do produto: R$");
     float productPrice = Float.parseFloat(in.nextLine().replace(",", "."));
 
+    URL url = new URL("https://economia.awesomeapi.com.br/json/last/USD-BRL");
+
+    JsonObjectBuilder exchange = Json.createObjectBuilder();
+13 }
+
+    float productPriceDolar = 0;
+
+    float productPriceEuro = 0;
+
     System.out.print("Quantidade no estoque: ");
     int qtd = Integer.parseInt(in.nextLine());
 
     InventoryEntryInterface entry = inventory.addNewProduct(
-      new Product(0, productName, productDescription, productPrice), 
+      new Product(0, productName, productDescription, productPrice, productPriceDolar, productPriceEuro), 
       qtd);
 
     System.out.println("Item adicionado com sucesso!");

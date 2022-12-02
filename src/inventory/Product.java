@@ -8,12 +8,16 @@ public class Product extends UnicastRemoteObject implements ProductInterface {
   private String productName;        // Nome do produto
   private String productDescription; // Descrição do produto
   private float productPrice;        // Valor unitário do produto
+  private float productPriceDolar;        // Valor unitário do produto em dolar
+  private float productPriceEuro;        // Valor unitário do produto em euro
 
-  public Product(int productID, String productName, String productDescription, float productPrice) throws RemoteException {
+  public Product(int productID, String productName, String productDescription, float productPrice, float productPriceDolar, float productPriceEuro) throws RemoteException {
     this.setProductID(productID);
     this.setProductName(productName);
     this.setProductDescription(productDescription);
     this.setProductPrice(productPrice);
+    this.setProductPriceDolar(productPriceDolar);
+    this.setProductPriceEuro(productPriceDolar);
   }
 
   public int getProductID() throws RemoteException {
@@ -46,5 +50,21 @@ public class Product extends UnicastRemoteObject implements ProductInterface {
 
   public void setProductPrice(float productPrice) throws RemoteException {
     this.productPrice = productPrice;
+  }
+
+  public float getProductPriceDolar() throws RemoteException {
+    return this.productPriceDolar;
+  }
+
+  public void setProductPriceDolar(float productPriceDolar) throws RemoteException {
+    this.productPriceDolar = productPriceDolar;
+  }
+
+  public float getProductPriceEuro() throws RemoteException {
+    return this.productPriceEuro;
+  }
+
+  public void setProductPriceEuro(float productPriceEuro) throws RemoteException {
+    this.productPriceEuro = productPriceEuro;
   }
 }
