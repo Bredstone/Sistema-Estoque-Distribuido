@@ -1,7 +1,3 @@
-import javax.json.*;
-
-import java.io.InputStream;
-import java.net.URL;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -36,6 +32,8 @@ public class Client {
     System.out.println("\tNome do produto: "      + entry.getProduct().getProductName());
     System.out.println("\tDescrição do produto: " + entry.getProduct().getProductDescription());
     System.out.println("\tPreço do produto: R$"   + String.format("%.2f", entry.getProduct().getProductPrice()));
+    System.out.println("\tPreço do produto: $"   + String.format("%.2f", entry.getProduct().getProductPrice()*Server.dolar));
+    System.out.println("\tPreço do produto: €"   + String.format("%.2f", entry.getProduct().getProductPrice()*Server.euro));
     System.out.println("\tQuantidade: "           + entry.getQtd());
     System.out.println("\tAdicionado: "           + entry.getAddedOn());
     System.out.println("\tÚltima modificação: "   + entry.getLastModified() + "\n");
@@ -51,20 +49,11 @@ public class Client {
     System.out.print("Preço do produto: R$");
     float productPrice = Float.parseFloat(in.nextLine().replace(",", "."));
 
-    URL url = new URL("https://economia.awesomeapi.com.br/json/last/USD-BRL");
-
-    JsonObjectBuilder exchange = Json.createObjectBuilder();
-13 }
-
-    float productPriceDolar = 0;
-
-    float productPriceEuro = 0;
-
     System.out.print("Quantidade no estoque: ");
     int qtd = Integer.parseInt(in.nextLine());
 
     InventoryEntryInterface entry = inventory.addNewProduct(
-      new Product(0, productName, productDescription, productPrice, productPriceDolar, productPriceEuro), 
+      new Product(0, productName, productDescription, productPrice), 
       qtd);
 
     System.out.println("Item adicionado com sucesso!");
