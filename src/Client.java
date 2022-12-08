@@ -1,6 +1,6 @@
 import java.rmi.Naming;
-import java.rmi.RemoteException;
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -32,6 +32,8 @@ public class Client {
     System.out.println("\tNome do produto: "      + entry.getProduct().getProductName());
     System.out.println("\tDescrição do produto: " + entry.getProduct().getProductDescription());
     System.out.println("\tPreço do produto: R$"   + String.format("%.2f", entry.getProduct().getProductPrice()));
+    System.out.println("\tPreço do produto: $"   + String.format("%.2f", entry.getProduct().getProductPrice()/Server.getDolarValue()));
+    System.out.println("\tPreço do produto: €"   + String.format("%.2f", entry.getProduct().getProductPrice()/Server.getEuroValue()));
     System.out.println("\tQuantidade: "           + entry.getQtd());
     System.out.println("\tAdicionado: "           + entry.getAddedOn());
     System.out.println("\tÚltima modificação: "   + entry.getLastModified() + "\n");

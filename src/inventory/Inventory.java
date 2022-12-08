@@ -2,9 +2,15 @@ package inventory;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import java.net.URL;
+import java.io.InputStream;  
+
 
 public class Inventory extends UnicastRemoteObject implements InventoryInterface {
   private List<InventoryEntryInterface> inventory;
@@ -15,13 +21,53 @@ public class Inventory extends UnicastRemoteObject implements InventoryInterface
     lastID = 0;
   }
 
+  public static String getJSONFromURL(String strUrl) {
+    String jsonText = "";
+
+    try {
+        URL url = new URL(strUrl);
+        InputStream is = url.openStream();
+
+        BufferedReader bufferedReader = 
+                        new BufferedReader(new InputStreamReader(is));
+        
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            jsonText += line + "\n";
+        }
+
+        is.close();
+        bufferedReader.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return jsonText;
+  }
+
+  public static String getDateTime(){
+    try {        
+
+      String strJson = getJSONFromURL("http://worldtimeapi.org/api/timezone/America/Sao_Paulo");
+
+      JSONParser parser = new JSONParser();
+      Object object = parser.parse(strJson);
+      JSONObject mainJsonObject = (JSONObject) object;
+
+      String dateTime = (String) mainJsonObject.get("datetime"); 
+      
+      return dateTime;
+
+    } catch(Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
+  }
+
   @Override
   public InventoryEntryInterface addNewProduct(ProductInterface product, int qtd) throws RemoteException {
     product.setProductID(++lastID);
     inventory.add(
-      new InventoryEntry(product, qtd, 
-      new Timestamp(System.currentTimeMillis()), 
-      new Timestamp(System.currentTimeMillis())));
+      new InventoryEntry(product, qtd, getDateTime(), getDateTime()));
     
     return this.searchProductByID(lastID);
   }
@@ -39,7 +85,7 @@ public class Inventory extends UnicastRemoteObject implements InventoryInterface
       throw new IllegalArgumentException("Quantidade inválida!");
 
     entry.setQtd(entry.getQtd() + qtd);
-    entry.setLastModified(new Timestamp(System.currentTimeMillis()));
+    entry.setLastModified(getDateTime());
 
     inventory.set(index, entry);
     return entry;
@@ -101,7 +147,7 @@ public class Inventory extends UnicastRemoteObject implements InventoryInterface
 
     int index = inventory.indexOf(entry);
     entry.setProduct(product);
-    entry.setLastModified(new Timestamp(System.currentTimeMillis()));
+    entry.setLastModified(getDateTime());
 
     inventory.set(index, entry);
     return entry;
