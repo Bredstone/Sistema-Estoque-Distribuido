@@ -2,14 +2,15 @@ package inventory;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.Timestamp;
 
 public class InventoryEntry extends UnicastRemoteObject implements InventoryEntryInterface {
   private ProductInterface product;        // Produto
-  private int qtd;                // Quantidade de unidades
-  private String addedOn;      // Data de inserção do produto
-  private String lastModified; // Data da última modificação do produto
+  private int qtd;                         // Quantidade de unidades
+  private Timestamp addedOn;                  // Data de inserção do produto
+  private Timestamp lastModified;             // Data da última modificação do produto
 
-  public InventoryEntry(ProductInterface product, int qtd, String addedOn, String lastModified) throws RemoteException {
+  public InventoryEntry(ProductInterface product, int qtd, Timestamp addedOn, Timestamp lastModified) throws RemoteException {
     this.product = product;
     this.qtd = qtd;
     this.addedOn = addedOn;
@@ -32,19 +33,19 @@ public class InventoryEntry extends UnicastRemoteObject implements InventoryEntr
     this.qtd = qtd;
   }
 
-  public String getAddedOn() throws RemoteException {
+  public Timestamp getAddedOn() throws RemoteException {
     return this.addedOn;
   }
 
-  public void setAddedOn(String addedOn) throws RemoteException {
+  public void setAddedOn(Timestamp addedOn) throws RemoteException {
     this.addedOn = addedOn;
   }
 
-  public String getLastModified() throws RemoteException {
+  public Timestamp getLastModified() throws RemoteException {
     return this.lastModified;
   }
 
-  public void setLastModified(String lastModified) throws RemoteException {
+  public void setLastModified(Timestamp lastModified) throws RemoteException {
     this.lastModified = lastModified;
   }
 }

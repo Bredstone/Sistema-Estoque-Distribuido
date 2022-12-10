@@ -1,1 +1,1 @@
-java -Djava.security.policy=server.policy -cp ./src Client
+java -Djava.security.policy=server.policy -cp "src/:src/resources/json-simple-1.1.1.jar" Client

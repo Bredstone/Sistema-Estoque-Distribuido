@@ -1,1 +1,1 @@
-javac -classpath . src/*.java src/*/*.java
+javac -cp "src/:src/resources/json-simple-1.1.1.jar" src/*.java src/*/*.java

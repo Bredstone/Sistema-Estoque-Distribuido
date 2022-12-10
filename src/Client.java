@@ -1,13 +1,13 @@
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 import inventory.InventoryEntryInterface;
 import inventory.InventoryInterface;
-import inventory.Product;
 
 public class Client {
   Scanner in;
@@ -32,11 +32,11 @@ public class Client {
     System.out.println("\tNome do produto: "      + entry.getProduct().getProductName());
     System.out.println("\tDescrição do produto: " + entry.getProduct().getProductDescription());
     System.out.println("\tPreço do produto: R$"   + String.format("%.2f", entry.getProduct().getProductPrice()));
-    System.out.println("\tPreço do produto: $"   + String.format("%.2f", entry.getProduct().getProductPrice()/Server.getDolarValue()));
-    System.out.println("\tPreço do produto: €"   + String.format("%.2f", entry.getProduct().getProductPrice()/Server.getEuroValue()));
+    System.out.println("\tPreço do produto: $"    + String.format("%.2f", entry.getProduct().getProductPrice() / Server.getDolarValue()));
+    System.out.println("\tPreço do produto: €"    + String.format("%.2f", entry.getProduct().getProductPrice() / Server.getEuroValue()));
     System.out.println("\tQuantidade: "           + entry.getQtd());
-    System.out.println("\tAdicionado: "           + entry.getAddedOn());
-    System.out.println("\tÚltima modificação: "   + entry.getLastModified() + "\n");
+    System.out.println("\tAdicionado: "           + new SimpleDateFormat("dd/mm/yyyy HH:mm:ss").format(entry.getAddedOn()));
+    System.out.println("\tÚltima modificação: "   + new SimpleDateFormat("dd/mm/yyyy HH:mm:ss").format(entry.getLastModified()) + "\n");
   }
 
   private void addNewProductForm() throws Exception {    
@@ -52,9 +52,7 @@ public class Client {
     System.out.print("Quantidade no estoque: ");
     int qtd = Integer.parseInt(in.nextLine());
 
-    InventoryEntryInterface entry = inventory.addNewProduct(
-      new Product(0, productName, productDescription, productPrice), 
-      qtd);
+    InventoryEntryInterface entry = inventory.addNewProduct(productName, productDescription, productPrice, qtd);
 
     System.out.println("Item adicionado com sucesso!");
     System.out.println("Código do produto: " + entry.getProduct().getProductID() + "\n");
@@ -148,15 +146,14 @@ public class Client {
     System.out.print("Descrição do produto (deixe em branco para manter): ");
     String productDescription = in.nextLine();
 
-    System.out.print("Preço do produto: R$" + String.format("%.2f", entry.getProduct().getProductPrice()));
+    System.out.println("Preço do produto: R$" + String.format("%.2f", entry.getProduct().getProductPrice()));
     System.out.print("Preço do produto: R$");
     float productPrice = Float.parseFloat(in.nextLine().replace(",", "."));
 
     inventory.editProduct(productID, 
-      new Product(productID, 
         productName.isEmpty() ? entry.getProduct().getProductName() : productName, 
         productDescription.isEmpty() ? entry.getProduct().getProductDescription() : productDescription, 
-        productPrice));
+        productPrice);
 
     System.out.println("Item modificado com sucesso!\n");
   }
@@ -252,7 +249,7 @@ public class Client {
     }
   
     in.close();
-    System.exit(0);
+    // System.exit(0);
   }
 
   public static void main(String[] args) {

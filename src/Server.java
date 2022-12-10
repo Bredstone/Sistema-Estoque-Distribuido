@@ -1,7 +1,7 @@
 import java.net.URL;
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
-import java.io.InputStream;              
+import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import org.json.simple.JSONObject;
@@ -19,81 +19,70 @@ public class Server {
       System.out.println("Nao registrou o objeto: " + e);
     }
   }
-    
-    public static String getJSONFromURL(String strUrl) {
-        String jsonText = "";
 
-        try {
-            URL url = new URL(strUrl);
-            InputStream is = url.openStream();
+  public static String getJSONFromURL(String strUrl) {
+    String jsonText = "";
 
-            BufferedReader bufferedReader = 
-                            new BufferedReader(new InputStreamReader(is));
-            
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                jsonText += line + "\n";
-            }
+    try {
+      URL url = new URL(strUrl);
+      InputStream is = url.openStream();
 
-            is.close();
-            bufferedReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return jsonText;
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        jsonText += line + "\n";
       }
 
-    public static float getDolarValue(){
+      is.close();
+      bufferedReader.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return jsonText;
+  }
 
-      try {        
+  public static float getDolarValue() {
+    try {
+      String strJson = getJSONFromURL("https://economia.awesomeapi.com.br/json/last/USD-BRL");
 
-        String strJson = getJSONFromURL("https://economia.awesomeapi.com.br/json/last/USD-BRL");
+      JSONParser parser = new JSONParser();
+      Object object = parser.parse(strJson);
+      JSONObject mainJsonObject = (JSONObject) object;
 
-        JSONParser parser = new JSONParser();
-        Object object = parser.parse(strJson);
-        JSONObject mainJsonObject = (JSONObject) object;
+      JSONObject exchange = (JSONObject) mainJsonObject.get("USDBRL");
 
-        JSONObject exchange = (JSONObject) mainJsonObject.get("USDBRL");
+      float dolar = Float.valueOf((String) exchange.get("bid"));
 
-        float dolar = Float.valueOf((String) exchange.get("bid"));
+      return dolar;
 
-        return dolar;
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return 0;
+    }
+  }
 
-      } catch(Exception ex) {
-        ex.printStackTrace();
-        return 0;
-      } 
+  public static float getEuroValue() {
+    try {
+      String strJson = getJSONFromURL("https://economia.awesomeapi.com.br/json/last/EUR-BRL");
 
-      
+      JSONParser parser = new JSONParser();
+      Object object = parser.parse(strJson);
+      JSONObject mainJsonObject = (JSONObject) object;
+
+      JSONObject exchange = (JSONObject) mainJsonObject.get("EURBRL");
+
+      float euro = Float.valueOf((String) exchange.get("bid"));
+
+      return euro;
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return 0;
     }
 
-    public static float getEuroValue(){
-
-      try {        
-
-        String strJson = getJSONFromURL("https://economia.awesomeapi.com.br/json/last/EUR-BRL");
-
-        JSONParser parser = new JSONParser();
-        Object object = parser.parse(strJson);
-        JSONObject mainJsonObject = (JSONObject) object;
-
-        JSONObject exchange = (JSONObject) mainJsonObject.get("EURBRL");
-
-        float euro = Float.valueOf((String) exchange.get("bid")); 
-        
-        return euro;
-
-      } catch(Exception ex) {
-        ex.printStackTrace();
-        return 0;
-      } 
-
-    }
-
+  }
 
   public static void main(String[] args) {
     new Server();
-
   }
 }
-
